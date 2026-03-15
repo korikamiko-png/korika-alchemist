@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>魂の目覚め度診断 | アルケミスト</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Noto+Serif+JP:wght@300;400;500&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --gold-dim: #7a5f2a;
+    --deep: #0a0812;
+    --void: #04030a;
+    --indigo: #1a1040;
+    --purple: #2d1b5e;
+    --rose: #8b3a6b;
+    --teal: #1a5f5a;
+    --cream: #f5edd8;
+    --text: #e8d5a3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--void);
+    color: var(--text);
+    font-family: 'Noto Serif JP', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── Starfield ── */
+  #stars {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(42,26,100,.6) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(139,58,107,.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(26,16,64,.8) 0%, transparent 70%),
+      var(--void);
+  }
+  #stars::before, #stars::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(201,168,76,.8), transparent),
+      radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1.5px 1.5px at 40% 10%, rgba(201,168,76,.9), transparent),
+      radial-gradient(1px 1px at 55% 60%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 70% 25%, rgba(201,168,76,.7), transparent),
+      radial-gradient(1.5px 1.5px at 85% 80%, rgba(255,255,255,.8), transparent),
+      radial-gradient(1px 1px at 15% 75%, rgba(201,168,76,.6), transparent),
+      radial-gradient(1px 1px at 90% 45%, rgba(255,255,255,.4), transparent),
+      radial-gradient(1px 1px at 35% 85%, rgba(201,168,76,.5), transparent),
+      radial-gradient(1px 1px at 60% 35%, rgba(255,255,255,.7), transparent),
+      radial-gradient(1px 1px at 5% 55%, rgba(201,168,76,.4), transparent),
+      radial-gradient(1px 1px at 75% 90%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1px 1px at 45% 20%, rgba(201,168,76,.8), transparent),
+      radial-gradient(1px 1px at 20% 95%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 95% 15%, rgba(201,168,76,.7), transparent),
+      radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 65% 70%, rgba(201,168,76,.6), transparent),
+      radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,.4), transparent);
+    animation: twinkle 4s ease-in-out infinite alternate;
+  }
+  #stars::after {
+    background-image:
+      radial-gradient(1px 1px at 8% 30%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1px 1px at 22% 70%, rgba(201,168,76,.5), transparent),
+      radial-gradient(1px 1px at 48% 45%, rgba(255,255,255,.7), transparent),
+      radial-gradient(1px 1px at 73% 12%, rgba(201,168,76,.8), transparent),
+      radial-gradient(1px 1px at 88% 65%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 12% 88%, rgba(201,168,76,.4), transparent),
+      radial-gradient(1px 1px at 56% 78%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1px 1px at 38% 22%, rgba(201,168,76,.7), transparent),
+      radial-gradient(1px 1px at 92% 38%, rgba(255,255,255,.4), transparent),
+      radial-gradient(1px 1px at 67% 55%, rgba(201,168,76,.5), transparent);
+    animation-delay: 2s;
+    animation-duration: 5s;
+  }
+  @keyframes twinkle {
+    0% { opacity: .6; } 100% { opacity: 1; }
+  }
+
+  /* ── Layout ── */
+  #app {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px 80px;
+  }
+
+  /* ── Header ── */
+  .header-ornament {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    color: var(--gold);
+    letter-spacing: .3em;
+    opacity: .7;
+  }
+  .main-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    color: var(--gold);
+    text-align: center;
+    text-shadow: 0 0 40px rgba(201,168,76,.5);
+    letter-spacing: .05em;
+    line-height: 1.4;
+  }
+  .sub-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(.75rem, 2vw, .9rem);
+    color: var(--gold-light);
+    text-align: center;
+    opacity: .7;
+    margin-top: 10px;
+    letter-spacing: .25em;
+  }
+  .divider {
+    width: 200px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 20px auto;
+    opacity: .6;
+  }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    display: flex; align-items: center; gap: 12px;
+    margin: 20px 0 30px;
+    opacity: .8;
+  }
+  .progress-bar {
+    width: 220px; height: 3px;
+    background: rgba(201,168,76,.2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    transition: width .6s ease;
+  }
+  .progress-label {
+    font-size: .7rem;
+    color: var(--gold);
+    letter-spacing: .15em;
+    font-family: 'IM Fell English SC', serif;
+  }
+
+  /* ── Question ── */
+  .question-area {
+    text-align: center;
+    max-width: 640px;
+    margin-bottom: 40px;
+    animation: fadeUp .6s ease;
+  }
+  .question-num {
+    font-family: 'IM Fell English SC', serif;
+    font-size: .75rem;
+    color: var(--gold);
+    letter-spacing: .3em;
+    opacity: .6;
+    margin-bottom: 12px;
+  }
+  .question-text {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: var(--cream);
+    line-height: 1.8;
+    font-weight: 300;
+    text-shadow: 0 2px 20px rgba(0,0,0,.5);
+  }
+
+  /* ── Cards ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    max-width: 700px;
+    width: 100%;
+    animation: fadeUp .6s ease .1s both;
+  }
+  @media (max-width: 500px) {
+    .cards-grid { grid-template-columns: 1fr; gap: 12px; }
+  }
+
+  .card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(26,16,64,.9) 0%, rgba(10,8,18,.95) 100%);
+    border: 1px solid rgba(201,168,76,.2);
+    border-radius: 16px;
+    padding: 28px 22px;
+    cursor: pointer;
+    transition: all .35s cubic-bezier(.25,.8,.25,1);
+    overflow: hidden;
+    text-align: center;
+  }
+  .card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,.08), transparent 60%);
+    opacity: 0;
+    transition: opacity .35s;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(201,168,76,.4), transparent 50%, rgba(201,168,76,.1));
+    opacity: 0;
+    transition: opacity .35s;
+  }
+  .card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: rgba(201,168,76,.5);
+    box-shadow: 0 12px 40px rgba(0,0,0,.4), 0 0 30px rgba(201,168,76,.1);
+  }
+  .card:hover::before { opacity: 1; }
+  .card:hover::after { opacity: 1; }
+  .card.selected {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, rgba(42,26,100,.95), rgba(26,16,64,.98));
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 50px rgba(201,168,76,.2), 0 0 60px rgba(201,168,76,.08);
+  }
+  .card.selected::before { opacity: 1; }
+  .card-symbol {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 14px;
+    filter: drop-shadow(0 0 10px rgba(201,168,76,.4));
+    transition: transform .35s;
+  }
+  .card:hover .card-symbol { transform: scale(1.15) rotate(-5deg); }
+  .card-label {
+    font-size: .7rem;
+    font-family: 'IM Fell English SC', serif;
+    color: var(--gold);
+    letter-spacing: .2em;
+    opacity: .6;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .card-text {
+    font-size: .9rem;
+    color: var(--cream);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ── Next button ── */
+  .btn-next {
+    margin-top: 36px;
+    padding: 14px 48px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Noto Serif JP', serif;
+    font-size: .95rem;
+    letter-spacing: .2em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all .3s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp .4s ease .2s both;
+  }
+  .btn-next::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,.15), transparent);
+    transform: translateX(-100%);
+    transition: transform .5s;
+  }
+  .btn-next:hover { background: rgba(201,168,76,.08); box-shadow: 0 0 30px rgba(201,168,76,.15); }
+  .btn-next:hover::before { transform: translateX(100%); }
+  .btn-next:disabled { opacity: .3; cursor: default; }
+
+  /* ── Result ── */
+  .result-wrap {
+    max-width: 680px;
+    width: 100%;
+    animation: fadeUp .8s ease;
+  }
+  .result-orb {
+    width: 140px; height: 140px;
+    margin: 0 auto 30px;
+    border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 2.8rem;
+    position: relative;
+    animation: pulse 3s ease-in-out infinite;
+  }
+  .result-orb::before {
+    content: '';
+    position: absolute; inset: -4px;
+    border-radius: 50%;
+    border: 1px solid;
+    animation: spin 8s linear infinite;
+    opacity: .4;
+  }
+  .result-orb::after {
+    content: '';
+    position: absolute; inset: -16px;
+    border-radius: 50%;
+    border: 1px dashed;
+    animation: spin 12s linear infinite reverse;
+    opacity: .2;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.05); filter: brightness(1.15); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .result-percent {
+    font-family: 'IM Fell English SC', serif;
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    color: var(--gold);
+    text-align: center;
+    text-shadow: 0 0 40px rgba(201,168,76,.6);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .result-stage-label {
+    font-size: .65rem;
+    letter-spacing: .3em;
+    color: var(--gold);
+    opacity: .6;
+    text-align: center;
+    font-family: 'IM Fell English SC', serif;
+    margin-bottom: 16px;
+  }
+  .result-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+    color: var(--gold);
+    text-align: center;
+    text-shadow: 0 0 30px rgba(201,168,76,.4);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .result-sub {
+    font-size: .8rem;
+    color: var(--gold-light);
+    text-align: center;
+    letter-spacing: .15em;
+    opacity: .7;
+    margin-bottom: 30px;
+  }
+  .result-card {
+    background: linear-gradient(135deg, rgba(26,16,64,.8), rgba(10,8,18,.9));
+    border: 1px solid rgba(201,168,76,.25);
+    border-radius: 16px;
+    padding: 32px 28px;
+    margin-bottom: 20px;
+  }
+  .result-section-title {
+    font-family: 'IM Fell English SC', serif;
+    font-size: .7rem;
+    letter-spacing: .3em;
+    color: var(--gold);
+    opacity: .6;
+    margin-bottom: 12px;
+  }
+  .result-text {
+    font-size: .95rem;
+    line-height: 2;
+    color: var(--cream);
+    font-weight: 300;
+  }
+  .result-traits {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 16px;
+  }
+  .trait-tag {
+    font-size: .75rem;
+    padding: 5px 14px;
+    border: 1px solid rgba(201,168,76,.3);
+    border-radius: 99px;
+    color: var(--gold-light);
+    letter-spacing: .1em;
+  }
+  .result-gifts {
+    list-style: none;
+    margin-top: 12px;
+  }
+  .result-gifts li {
+    font-size: .9rem;
+    color: var(--cream);
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(201,168,76,.1);
+    display: flex; align-items: center; gap: 10px;
+    line-height: 1.6;
+  }
+  .result-gifts li::before {
+    content: '✦';
+    color: var(--gold);
+    font-size: .7rem;
+    flex-shrink: 0;
+  }
+  .cta-box {
+    background: linear-gradient(135deg, rgba(45,27,94,.6), rgba(26,16,64,.8));
+    border: 1px solid rgba(201,168,76,.4);
+    border-radius: 16px;
+    padding: 32px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .cta-box::before {
+    content: '';
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 60%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .cta-label {
+    font-size: .65rem;
+    letter-spacing: .3em;
+    color: var(--gold);
+    opacity: .6;
+    font-family: 'IM Fell English SC', serif;
+    margin-bottom: 12px;
+  }
+  .cta-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(.9rem, 2.5vw, 1.1rem);
+    color: var(--gold);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .cta-text {
+    font-size: .85rem;
+    color: var(--cream);
+    opacity: .8;
+    line-height: 1.9;
+    margin-bottom: 24px;
+    font-weight: 300;
+  }
+  /* ── Sacred Angel CTA Button ── */
+  .btn-cta-wrap {
+    position: relative;
+    display: inline-block;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  /* 光輪エフェクト（外側） */
+  .btn-cta-halo {
+    position: absolute;
+    inset: 0;
+    border-radius: 60px;
+    background: radial-gradient(ellipse at 50% 50%,
+      rgba(255,255,220,.18) 0%,
+      rgba(201,168,76,.08) 40%,
+      transparent 70%);
+    animation: haloPulse 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes haloPulse {
+    0%,100% { transform: scale(1);   opacity: .7; }
+    50%      { transform: scale(1.1); opacity: 1;  }
+  }
+  /* 回転する光の輪 */
+  .btn-cta-ring {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,200,.35);
+    animation: ringRotate 8s linear infinite;
+    pointer-events: none;
+  }
+  .btn-cta-ring::before,
+  .btn-cta-ring::after {
+    content: '✦';
+    position: absolute;
+    left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,200,.8);
+    font-size: .65rem;
+    text-shadow: 0 0 8px rgba(255,255,150,.9);
+  }
+  .btn-cta-ring::before { top: -7px; }
+  .btn-cta-ring::after  { bottom: -7px; }
+  @keyframes ringRotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  /* ボタン本体 */
+  .btn-cta {
+    position: relative;
+    display: inline-block;
+    padding: 20px 56px;
+    background: linear-gradient(160deg,
+      rgba(255,255,255,.18) 0%,
+      rgba(240,225,180,.12) 40%,
+      rgba(201,168,76,.15) 100%);
+    color: #fff8e8;
+    font-family: 'Noto Serif JP', serif;
+    font-size: .95rem;
+    letter-spacing: .28em;
+    border-radius: 50px;
+    cursor: pointer;
+    border: 1px solid rgba(255,245,200,.5);
+    transition: all .45s ease;
+    font-weight: 400;
+    box-shadow:
+      0 0 30px rgba(255,245,180,.2),
+      0 0 80px rgba(201,168,76,.1),
+      inset 0 1px 0 rgba(255,255,255,.3),
+      inset 0 0 30px rgba(255,255,200,.05);
+    backdrop-filter: blur(4px);
+    overflow: hidden;
+    z-index: 1;
+  }
+  /* 光が流れるシマー */
+  .btn-cta::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -80%;
+    width: 50%; height: 200%;
+    background: linear-gradient(105deg,
+      transparent,
+      rgba(255,255,255,.35),
+      rgba(255,245,180,.2),
+      transparent);
+    animation: shimmer 3.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  /* 底のグロー線 */
+  .btn-cta::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 15%; right: 15%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,245,200,.7), transparent);
+  }
+  @keyframes shimmer {
+    0%   { left: -80%; opacity: 0; }
+    20%  { opacity: 1; }
+    60%  { left: 120%; opacity: 1; }
+    100% { left: 120%; opacity: 0; }
+  }
+  .btn-cta:hover {
+    transform: translateY(-4px) scale(1.04);
+    background: linear-gradient(160deg,
+      rgba(255,255,255,.28) 0%,
+      rgba(240,225,180,.2) 40%,
+      rgba(201,168,76,.25) 100%);
+    border-color: rgba(255,245,200,.8);
+    box-shadow:
+      0 0 50px rgba(255,245,180,.4),
+      0 0 120px rgba(201,168,76,.2),
+      0 10px 40px rgba(0,0,0,.3),
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 0 40px rgba(255,255,200,.1);
+    letter-spacing: .32em;
+  }
+  /* ボタン内テキストレイアウト */
+  .btn-cta-inner {
+    position: relative; z-index: 1;
+    display: flex; align-items: center;
+    gap: 12px; justify-content: center;
+  }
+  .btn-cta-icon {
+    font-size: 1.1rem;
+    filter: drop-shadow(0 0 6px rgba(255,245,150,.9));
+    animation: iconGlow 2.5s ease-in-out infinite;
+  }
+  .btn-cta-icon:last-child { animation-delay: 1.25s; }
+  @keyframes iconGlow {
+    0%,100% { transform: scale(1);    filter: drop-shadow(0 0 4px rgba(255,245,150,.6)); }
+    50%      { transform: scale(1.25); filter: drop-shadow(0 0 12px rgba(255,245,150,1)); }
+  }
+  .btn-cta-text {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .btn-cta-text span:first-child {
+    font-size: .7rem;
+    letter-spacing: .35em;
+    color: rgba(255,245,200,.65);
+    font-weight: 300;
+  }
+  .btn-cta-text span:last-child {
+    font-size: .95rem;
+    letter-spacing: .22em;
+    color: #fff8e8;
+    text-shadow: 0 0 20px rgba(255,245,150,.6);
+  }
+
+
+  .btn-retry {
+    display: block;
+    margin: 16px auto 0;
+    background: transparent;
+    border: none;
+    color: var(--gold);
+    opacity: .5;
+    font-family: 'Noto Serif JP', serif;
+    font-size: .8rem;
+    cursor: pointer;
+    letter-spacing: .15em;
+    text-decoration: underline;
+    transition: opacity .3s;
+  }
+  .btn-retry:hover { opacity: .8; }
+
+  /* ── Intro ── */
+  .intro-wrap {
+    max-width: 560px;
+    text-align: center;
+    animation: fadeUp .8s ease;
+  }
+  .intro-orb {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, rgba(201,168,76,.3), rgba(42,26,100,.6), rgba(4,3,10,.8));
+    margin: 0 auto 30px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.8rem;
+    box-shadow: 0 0 60px rgba(201,168,76,.15), inset 0 0 30px rgba(201,168,76,.1);
+    animation: pulse 3s ease-in-out infinite;
+    border: 1px solid rgba(201,168,76,.2);
+  }
+  .intro-text {
+    font-size: .95rem;
+    color: var(--cream);
+    line-height: 2;
+    font-weight: 300;
+    opacity: .85;
+    margin-bottom: 24px;
+  }
+  .intro-note {
+    font-size: .8rem;
+    color: var(--gold-light);
+    opacity: .5;
+    letter-spacing: .15em;
+    margin-bottom: 36px;
+  }
+  /* ── Sacred Start Button ── */
+  .btn-start-wrap {
+    position: relative;
+    display: inline-block;
+    padding: 24px;
+  }
+  /* 外側の大きな光輪 */
+  .btn-start-halo {
+    position: absolute;
+    inset: 0;
+    border-radius: 70px;
+    background: radial-gradient(ellipse at 50% 50%,
+      rgba(255,255,220,.2) 0%,
+      rgba(201,168,76,.08) 45%,
+      transparent 70%);
+    animation: startHalo 3.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes startHalo {
+    0%,100% { transform: scale(1);    opacity: .6; }
+    50%      { transform: scale(1.15); opacity: 1;  }
+  }
+  /* 二重回転リング */
+  .btn-start-ring1 {
+    position: absolute;
+    inset: 6px;
+    border-radius: 60px;
+    border: 1px solid rgba(255,255,200,.3);
+    animation: startRing1 10s linear infinite;
+    pointer-events: none;
+  }
+  .btn-start-ring1::before,
+  .btn-start-ring1::after {
+    content: '✦';
+    position: absolute;
+    left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,200,.8);
+    font-size: .6rem;
+    text-shadow: 0 0 8px rgba(255,255,150,1);
+  }
+  .btn-start-ring1::before { top: -7px; }
+  .btn-start-ring1::after  { bottom: -7px; }
+  @keyframes startRing1 {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .btn-start-ring2 {
+    position: absolute;
+    inset: 0px;
+    border-radius: 70px;
+    border: 1px dashed rgba(255,245,200,.15);
+    animation: startRing2 14s linear infinite reverse;
+    pointer-events: none;
+  }
+  .btn-start-ring2::before,
+  .btn-start-ring2::after {
+    content: '◇';
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    color: rgba(255,255,200,.5);
+    font-size: .55rem;
+  }
+  .btn-start-ring2::before { left: -6px; }
+  .btn-start-ring2::after  { right: -6px; }
+  @keyframes startRing2 {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  /* ボタン本体 */
+  .btn-start {
+    position: relative;
+    display: inline-block;
+    padding: 22px 62px;
+    background: linear-gradient(160deg,
+      rgba(255,255,255,.18) 0%,
+      rgba(240,225,180,.12) 40%,
+      rgba(201,168,76,.15) 100%);
+    color: #fff8e8;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1rem;
+    letter-spacing: .3em;
+    border-radius: 60px;
+    cursor: pointer;
+    border: 1px solid rgba(255,245,200,.5);
+    transition: all .45s ease;
+    font-weight: 400;
+    box-shadow:
+      0 0 35px rgba(255,245,180,.22),
+      0 0 90px rgba(201,168,76,.1),
+      inset 0 1px 0 rgba(255,255,255,.35),
+      inset 0 0 30px rgba(255,255,200,.05);
+    backdrop-filter: blur(4px);
+    overflow: hidden;
+    z-index: 1;
+  }
+  .btn-start::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -80%;
+    width: 50%; height: 200%;
+    background: linear-gradient(105deg,
+      transparent,
+      rgba(255,255,255,.4),
+      rgba(255,245,180,.2),
+      transparent);
+    animation: shimmer 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .btn-start::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 15%; right: 15%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,245,200,.7), transparent);
+  }
+  .btn-start:hover {
+    transform: translateY(-4px) scale(1.05);
+    background: linear-gradient(160deg,
+      rgba(255,255,255,.28) 0%,
+      rgba(240,225,180,.22) 40%,
+      rgba(201,168,76,.28) 100%);
+    border-color: rgba(255,245,200,.85);
+    box-shadow:
+      0 0 60px rgba(255,245,180,.45),
+      0 0 130px rgba(201,168,76,.2),
+      0 12px 40px rgba(0,0,0,.3),
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 0 40px rgba(255,255,200,.1);
+  }
+  .btn-start-inner {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+  }
+  .btn-start-sub {
+    font-size: .65rem;
+    letter-spacing: .4em;
+    color: rgba(255,245,200,.6);
+    font-weight: 300;
+  }
+  .btn-start-main {
+    font-size: 1rem;
+    letter-spacing: .3em;
+    color: #fff8e8;
+    text-shadow: 0 0 20px rgba(255,245,150,.6);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .btn-start-dove {
+    font-size: 1.1rem;
+    filter: drop-shadow(0 0 8px rgba(255,245,150,.9));
+    animation: iconGlow 2.5s ease-in-out infinite;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Transition */
+  .scene { display: none; }
+  .scene.active { display: flex; flex-direction: column; align-items: center; width: 100%; }
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div id="app">
+  <div style="text-align:center; margin-bottom: 32px;">
+    <div class="header-ornament">✦ ✦ ✦</div>
+    <h1 class="main-title">Soul Awakening Scale</h1>
+    <p class="sub-title">あなたの魂の目覚め度診断</p>
+    <div class="divider"></div>
+  </div>
+
+  <!-- INTRO -->
+  <div id="scene-intro" class="scene active">
+    <div class="intro-wrap">
+      <div class="intro-orb">🔮</div>
+      <p class="intro-text">
+        あなたの魂は今、どのステージにいるのでしょうか。<br>
+        7枚のカードが問いかけます。<br><br>
+        正解も不正解もありません。<br>
+        頭で考えずに、心が最初に動いた答えを選んでください。
+      </p>
+      <p class="intro-note">直感で選ぶ・全7問・所要時間 約3分</p>
+      <div class="btn-start-wrap">
+        <div class="btn-start-halo"></div>
+        <div class="btn-start-ring2"></div>
+        <div class="btn-start-ring1"></div>
+        <button class="btn-start" onclick="startQuiz()">
+          <span class="btn-start-inner">
+            <span class="btn-start-sub">— Awaken Your Soul —</span>
+            <span class="btn-start-main">
+              <span class="btn-start-dove">🕊️</span>
+              診断をはじめる
+              <span class="btn-start-dove" style="animation-delay:.8s">✨</span>
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="scene-quiz" class="scene">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <span class="progress-label" id="progress-label">1 / 7</span>
+    </div>
+    <div class="question-area">
+      <p class="question-num" id="q-num">Question I</p>
+      <p class="question-text" id="q-text"></p>
+    </div>
+    <div class="cards-grid" id="cards-grid"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>次へ進む →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="scene-result" class="scene">
+    <div class="result-wrap" id="result-content"></div>
+  </div>
+</div>
+
+<script>
+const ROMAN = ['I','II','III','IV','V','VI','VII'];
+
+const questions = [
+  {
+    text: '朝、目を覚ました瞬間。\nあなたの心に最初に浮かぶのは？',
+    cards: [
+      { symbol: '☀️', label: 'Dawn', text: 'また今日が始まる。\nやることをこなすだけ' },
+      { symbol: '🌊', label: 'Flow', text: '今日はどんな気づきが\nあるだろう、とわくわくする' },
+      { symbol: '🌙', label: 'Dream', text: '夢の続きや、見えない世界の\nことを考えている' },
+      { symbol: '🔥', label: 'Fire', text: '自分の使命や今日の意図を\n心の中で確認している' },
+    ],
+    scores: [1, 2, 3, 4]
+  },
+  {
+    text: '「偶然の一致」を感じたとき、\nあなたはどう感じますか？',
+    cards: [
+      { symbol: '🎲', label: 'Chance', text: 'ただの偶然だと思う。\n特別な意味はない' },
+      { symbol: '🤔', label: 'Wonder', text: '少し不思議だなと思うが\n深くは考えない' },
+      { symbol: '✨', label: 'Sign', text: 'これは何かのサインかも\nしれないと感じる' },
+      { symbol: '🌐', label: 'Web', text: '宇宙とつながっている証拠。\n必然だと確信している' },
+    ],
+    scores: [1, 2, 3, 4]
+  },
+  {
+    text: '初めて訪れた場所や初対面の人に\n接するとき、あなたは？',
+    cards: [
+      { symbol: '🚪', label: 'Observe', text: '外見や状況など\n目に見える情報で判断する' },
+      { symbol: '💭', label: 'Think', text: '考えながら、少しずつ\n相手を知っていく' },
+      { symbol: '💫', label: 'Feel', text: '何となく「良い感じ」か\n「そうでないか」を感じ取る' },
+      { symbol: '🕊️', label: 'Sense', text: 'その場や人のエネルギーを\n即座に体全体で受け取る' },
+    ],
+    scores: [1, 2, 3, 4]
+  },
+  {
+    text: '自分の人生の出来事（辛いことも含め）\nについて、今のあなたは？',
+    cards: [
+      { symbol: '⚡', label: 'Struggle', text: '理不尽なことが多く\n受け入れがたいと感じる' },
+      { symbol: '🔍', label: 'Seek', text: 'なぜこうなったか\n意味を探している途中' },
+      { symbol: '🌱', label: 'Grow', text: 'すべては成長のための\n経験だったと思える' },
+      { symbol: '♾️', label: 'Trust', text: '魂の計画通りに\n完璧に展開していると信じている' },
+    ],
+    scores: [1, 2, 3, 4]
+  },
+  {
+    text: '「本当の自分」という言葉を聞いて\nあなたが感じるのは？',
+    cards: [
+      { symbol: '❓', label: 'Unknown', text: 'よく分からない。\n自分は自分だと思う' },
+      { symbol: '🗺️', label: 'Search', text: 'まだ探している途中。\n答えを見つけたい' },
+      { symbol: '🪞', label: 'Mirror', text: 'うっすら見えてきた。\n少しずつ本質に近づいている' },
+      { symbol: '👁️', label: 'Know', text: '今ここにいる自分。\nすでにそれが本当の自分だと知っている' },
+    ],
+    scores: [1, 2, 3, 4]
+  },
+  {
+    text: '大切な決断をするとき、\nあなたは何を最も信頼しますか？',
+    cards: [
+      { symbol: '📊', label: 'Logic', text: 'データや実績など\n論理的な根拠' },
+      { symbol: '👥', label: 'Others', text: '信頼できる人の\nアドバイスや経験' },
+      { symbol: '❤️', label: 'Heart', text: 'どちらが「良い感じがするか」\nという感覚' },
+      { symbol: '🌟', label: 'Soul', text: '魂や高次の自己からの\nメッセージ・直感' },
+    ],
+    scores: [1, 2, 3, 4]
+  },
+  {
+    text: 'あなたがこの世界に存在している\n理由について、今感じていることは？',
+    cards: [
+      { symbol: '🌀', label: 'Wander', text: '特に理由はないと思う。\nただ生きているだけ' },
+      { symbol: '🔦', label: 'Seek', text: '何か意味があるはずで\n今も探している' },
+      { symbol: '🌸', label: 'Bloom', text: '自分らしく生きること、\n愛することが使命だと感じる' },
+      { symbol: '🌍', label: 'Mission', text: '地球の次元上昇に\n関わるために来たと確信している' },
+    ],
+    scores: [1, 2, 3, 4]
+  }
+];
+
+const results = [
+  {
+    range: [7, 13],
+    percent: '15〜30',
+    stage: 'Stage I',
+    symbol: '🌑',
+    orbColor: 'radial-gradient(circle at 40% 35%, rgba(80,60,120,.5), rgba(10,8,18,.9))',
+    orbBorder: 'rgba(150,130,200,.4)',
+    title: '眠れる錬金術師',
+    subtitle: 'The Sleeping Alchemist',
+    description: 'あなたの魂の種は、まだ土の中で静かに眠っています。目に見える世界を中心に生き、今の日常に安心感や確かさを求めているのかもしれません。しかしここを読んでいるということ自体が、あなたの中の何かが「もっと深いものがある」と感じ始めている証拠。目覚めの扉は、すでにノックされています。',
+    traits: ['現実主義', '安定志向', '論理的思考', '誠実さ'],
+    gifts: [
+      '地に足のついた判断力と実行力',
+      '目に見える世界での着実な積み上げ',
+      '探求の旅を始める、純粋な準備ができている',
+    ],
+    shadow: '「見えないものへの信頼」を育てることが、次のステージへの鍵になります。',
+    next: 'まず「直感に従ってみる」小さな体験を積み重ねることから。アルケミスト講座では、あなたが安全に扉を開けるサポートをします。',
+  },
+  {
+    range: [14, 19],
+    percent: '35〜50',
+    stage: 'Stage II',
+    symbol: '🌒',
+    orbColor: 'radial-gradient(circle at 40% 35%, rgba(26,95,90,.5), rgba(10,8,18,.9))',
+    orbBorder: 'rgba(100,200,190,.4)',
+    title: '扉の前に立つ者',
+    subtitle: 'The Awakening Seeker',
+    description: 'あなたはすでに、「何かもっと深いものがある」と感じ始めています。目に見えない世界への興味が芽生え、シンクロや直感という体験に意味を感じるようになっている。まだ確信には至らないかもしれませんが、あなたの魂はすでに目覚めのプロセスに入っています。',
+    traits: ['感受性の芽生え', '意味を探す姿勢', 'スピリチュアルな好奇心', '変化への意欲'],
+    gifts: [
+      '「何かある」という感覚を大切にできる感性',
+      '理性とスピリチュアルの橋渡しができる可能性',
+      '探求の動機がすでに心の中で燃えている',
+    ],
+    shadow: '「半信半疑の自分」を否定せず、ただ体験を重ねていくことが大切です。',
+    next: '今のあなたに必要なのは「体験」。アルケミスト講座で、確かな気づきと変容の体験を積み重ねましょう。',
+  },
+  {
+    range: [20, 23],
+    percent: '55〜70',
+    stage: 'Stage III',
+    symbol: '🌓',
+    orbColor: 'radial-gradient(circle at 40% 35%, rgba(139,58,107,.5), rgba(26,16,64,.9))',
+    orbBorder: 'rgba(220,130,180,.4)',
+    title: '目覚めの途中にある魂',
+    subtitle: 'The Transforming Soul',
+    description: 'あなたは今、変容のプロセスの真っ只中にいます。直感を信頼し、目に見えない世界のエネルギーを感じ取る力が育ち始めています。古い自分と新しい自分の間で揺れることもあるかもしれません。それは統合が起きている証拠。あなたの錬金術はすでに始まっています。',
+    traits: ['エネルギー感知', '直感の信頼', 'シンクロへの感度', '自己変容中'],
+    gifts: [
+      '場や人のエネルギーを敏感に感じ取る力',
+      '内なる声に耳を傾ける習慣が育っている',
+      '「古い自分」を手放す勇気と意志',
+    ],
+    shadow: '「揺れ」や「混乱」も変容の一部。自分を責めず、ただ流れに乗ることが今の課題です。',
+    next: '統合とグラウンディングを深める段階です。アルケミスト講座で、あなたの変容をより速く、確かなものにしませんか。',
+  },
+  {
+    range: [24, 26],
+    percent: '75〜88',
+    stage: 'Stage IV',
+    symbol: '🌔',
+    orbColor: 'radial-gradient(circle at 40% 35%, rgba(100,80,20,.5), rgba(42,26,100,.9))',
+    orbBorder: 'rgba(201,168,76,.6)',
+    title: '光を受け取り始めた者',
+    subtitle: 'The Awakened One',
+    description: 'あなたの魂は、かなり高い次元の目覚めを経験しています。宇宙の流れを信頼し、すべての出来事に意味を見出し、エネルギーの世界をリアルに体験している。内なる光が着実に強くなっています。あなたはすでに「旅人」から「ガイド」へと移行しつつあるステージにいます。',
+    traits: ['高い霊的感受性', '使命感の覚醒', '統合と受容', '宇宙との共鳴'],
+    gifts: [
+      '魂レベルでの洞察と理解の深さ',
+      'エネルギーを感知し、場を変える力',
+      '他者の目覚めをサポートする可能性',
+    ],
+    shadow: '「もっと完璧に目覚めなければ」という焦りを手放し、今のステージを十分に生きることが次の統合につながります。',
+    next: '次のレベルの統合と、あなたの力を世界に発揮する段階です。アルケミスト講座で、あなたの光をさらに磨きましょう。',
+  },
+  {
+    range: [27, 28],
+    percent: '92〜100',
+    stage: 'Stage V',
+    symbol: '🌕',
+    orbColor: 'radial-gradient(circle at 40% 35%, rgba(201,168,76,.6), rgba(80,50,10,.8), rgba(26,16,64,.9))',
+    orbBorder: 'rgba(201,168,76,.9)',
+    title: '目覚めたアルケミスト',
+    subtitle: 'The Awakened Alchemist',
+    description: 'あなたはすでに深い目覚めを経験した魂です。宇宙の意図と自分の使命が一致し、魂の計画を信頼して生きている。すべての体験が「完璧な配置」であることを体感として知っている。あなたの存在自体が、周囲の人々の目覚めを促す触媒となっています。',
+    traits: ['完全な自己信頼', '魂の使命の体現', '光と影の統合', '宇宙との一体感'],
+    gifts: [
+      '存在そのものが場を変え、人を癒す力',
+      '高次の知恵にアクセスし、体現する能力',
+      '他者の目覚めと変容を導くライトワーカーとしての資質',
+    ],
+    shadow: '完全に「わかった」と感じるとき、さらに深い扉が開かれます。初心の謙虚さが、あなたを次の次元へと導きます。',
+    next: '次はあなたが伝える番です。アルケミスト講座では、あなたのギフトをさらに深め、世界へ発信する力を育てます。',
+  },
+];
+
+// ===================================================
+// ★ LINE設定（ここを書き換えてください）★
+// ---------------------------------------------------
+// 【方法A】lin.ee の友だち追加リンクのみの場合：
+//   LINE_ID を空のまま '' にして LINE_FRIEND_URL だけ書き換える
+//
+// 【方法B】LINE IDがわかる場合（メッセージ自動入力あり）：
+//   LINE_ID に @から始まるLINE IDを入れる（例: '@abc1234'）
+//   → ボタンを押すとトーク画面が開きメッセージが自動入力されます
+// ===================================================
+const LINE_ID = '';
+const LINE_FRIEND_URL = 'https://page.line.me/201oxyfo';
+const LINE_MESSAGE = 'アルケミスト講座の説明会に参加したいです';
+
+function openLINE() {
+  // まず友だち追加ページへ飛ぶ（最も確実な方法）
+  window.open('https://page.line.me/201oxyfo', '_blank');
+}
+
+let current = 0;
+let answers = [];
+let selectedIdx = null;
+
+function startQuiz() {
+  document.getElementById('scene-intro').classList.remove('active');
+  document.getElementById('scene-quiz').classList.add('active');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  selectedIdx = null;
+  const q = questions[current];
+  document.getElementById('q-num').textContent = 'Question ' + ROMAN[current];
+  document.getElementById('q-text').textContent = q.text;
+
+  // Progress
+  const pct = (current / 7) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = (current + 1) + ' / 7';
+
+  // Cards
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = '';
+  q.cards.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<span class="card-symbol">${c.symbol}</span><span class="card-label">${c.label}</span><p class="card-text">${c.text.replace(/\n/g,'<br>')}</p>`;
+    div.onclick = () => selectCard(i);
+    grid.appendChild(div);
+  });
+
+  const btnNext = document.getElementById('btn-next');
+  btnNext.disabled = true;
+  btnNext.textContent = current < 6 ? '次へ進む →' : '結果を見る ✦';
+}
+
+function selectCard(i) {
+  document.querySelectorAll('.card').forEach((c,idx) => {
+    c.classList.toggle('selected', idx === i);
+  });
+  selectedIdx = i;
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (selectedIdx === null) return;
+  answers.push(questions[current].scores[selectedIdx]);
+  current++;
+  if (current < 7) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  const total = answers.reduce((a, b) => a + b, 0);
+  const result = results.find(r => total >= r.range[0] && total <= r.range[1]) || results[results.length - 1];
+
+  document.getElementById('scene-quiz').classList.remove('active');
+  const scene = document.getElementById('scene-result');
+  scene.classList.add('active');
+
+  const traitsHTML = result.traits.map(t => '<span class="trait-tag">' + t + '</span>').join('');
+  const giftsHTML = result.gifts.map(g => '<li>' + g + '</li>').join('');
+
+  const content = document.getElementById('result-content');
+  content.innerHTML =
+    '<div style="text-align:center; margin-bottom:8px;">'
+    + '<div class="result-orb" style="background:' + result.orbColor + '; border-color:' + result.orbBorder + ';">' + result.symbol + '</div>'
+    + '<div class="result-percent">' + result.percent + '<span style="font-size:1.4rem">%</span></div>'
+    + '<div class="result-stage-label">' + result.stage + ' · Soul Awakening Scale</div>'
+    + '<h2 class="result-title">' + result.title + '</h2>'
+    + '<p class="result-sub">' + result.subtitle + '</p>'
+    + '</div>'
+    + '<div class="divider"></div>'
+    + '<div class="result-card" style="margin-top:22px;">'
+    + '<p class="result-section-title">✦ YOUR SOUL PROFILE</p>'
+    + '<p class="result-text">' + result.description + '</p>'
+    + '<div class="result-traits">' + traitsHTML + '</div>'
+    + '</div>'
+    + '<div class="result-card">'
+    + '<p class="result-section-title">✦ YOUR GIFTS & POTENTIALS</p>'
+    + '<ul class="result-gifts">' + giftsHTML + '</ul>'
+    + '</div>'
+    + '<div class="result-card">'
+    + '<p class="result-section-title">✦ SHADOW & NEXT STEP</p>'
+    + '<p class="result-text">' + result.shadow + '</p>'
+    + '</div>'
+    + '<div class="cta-box">'
+    + '<p class="cta-label">✦ YOUR NEXT LEVEL ✦</p>'
+    + '<h3 class="cta-title">アルケミスト講座で、<br>あなたの魂の旅を加速させませんか？</h3>'
+    + '<p class="cta-text">' + result.next + '</p>'
+    + '<div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:22px;font-size:.75rem;color:#c9a84c;opacity:.8;letter-spacing:.1em;">'
+    + '<span>✦ 完全無料</span>'
+    + '<span>✦ 勧誘・押し売り一切なし</span>'
+    + '<span>✦ LINEで簡単申し込み</span>'
+    + '</div>'
+    + '<div style="text-align:center;margin-bottom:8px;">'
+    + '<div class="btn-cta-wrap">'
+    + '<div class="btn-cta-halo"></div>'
+    + '<div class="btn-cta-ring"></div>'
+    + '<button class="btn-cta" onclick="openLINE()">'
+    + '<span class="btn-cta-inner">'
+    + '<span class="btn-cta-icon">🕊️</span>'
+    + '<span class="btn-cta-text">'
+    + '<span>Sacred Message</span>'
+    + '<span>公式LINEを開く</span>'
+    + '</span>'
+    + '<span class="btn-cta-icon">✨</span>'
+    + '</span>'
+    + '</button>'
+    + '</div>'
+    + '</div>'
+    + '<div style="margin-top:22px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:18px 16px;text-align:left;">'
+    + '<p style="font-size:.78rem;color:#c9a84c;letter-spacing:.15em;margin-bottom:10px;text-align:center;">📩 申し込み方法はとても簡単です</p>'
+    + '<p style="font-size:.88rem;color:#f5edd8;line-height:2;font-weight:300;">'
+    + '上のボタンを押して公式LINEを開いたら、<br>'
+    + 'トーク画面に<br>'
+    + '<span style="display:inline-block;margin:6px 0;padding:6px 14px;background:rgba(201,168,76,.15);border-radius:6px;color:#e8d5a3;letter-spacing:.05em;font-size:.9rem;">&#x300C;無料説明会に参加したいです&#x300D;</span><br>'
+    + 'とメッセージを送ってください。<br>'
+    + 'それだけで申し込み完了です！'
+    + '</p>'
+    + '</div>'
+    + '<p style="font-size:.7rem;color:#e8d5a3;opacity:.4;margin-top:12px;letter-spacing:.08em;text-align:center;">公式LINEに移動します。説明会は完全無料です。</p>'
+    + '</div>'
+    + '<button class="btn-retry" onclick="retryQuiz()">もう一度診断する</button>';
+}
+
+function retryQuiz() {
+  current = 0; answers = []; selectedIdx = null;
+  document.getElementById('scene-result').classList.remove('active');
+  document.getElementById('scene-intro').classList.add('active');
+}
+</script>
+</body>
+</html>
